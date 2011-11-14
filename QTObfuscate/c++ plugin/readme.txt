@@ -1,0 +1,32 @@
+
+
+==========================================
+== static library
+cd Desktop/QTObfuscate-build-desktop-Desktop_Qt_4_7_4_for_GCC__Qt_SDK__Release
+ar rc libObf.a *.o
+==========================================
+
+
+==========================================
+== plugin1
+== cd Desktop/c++\ plugin
+ - g++ -shared -o libAlgorithm1.so Plugin1.cpp Algorithm1.cpp libObf.a -I/usr/share/qt4/include -I/usr/share/qt4/include/QtGui -I/usr/share/qt4/include/QtCore -L/usr/lib/qt4/plugins -lQtCore -lQtGui
+
+ - copy and paste libAlgorithm1.so to same folder as EXE
+==========================================
+
+
+==========================================
+== plugin2
+ - g++ -shared -o libAlgorithm2.so Plugin2.cpp ReverseAlgorithm.cpp libObf.a -I/usr/share/qt4/include -I/usr/share/qt4/include/QtGui -I/usr/share/qt4/include/QtCore -L/usr/lib/qt4/plugins -lQtCore -lQtGui
+
+ - copy and paste libAlgorithm2.so to same folder as EXE
+==========================================
+
+
+
+
+
+
+
+
