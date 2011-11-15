@@ -74,9 +74,9 @@ void Algorithm1::addWordsToList(const string& str,vector<string>& v)
 	// find and skip header file
 	int i_headerPos=0;
 	int i_newlinePos=0;
-	i_headerPos = s_searchString.rfind("#include");
+	i_headerPos = str.rfind("#include");
 	if(i_headerPos!=string::npos) {
-		i_newlinePos = s_searchString.find("\n", i_headerPos);
+		i_newlinePos = str.find("\n", i_headerPos);
 	}
 
 

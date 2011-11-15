@@ -4,6 +4,14 @@
 
 void Plugin2::setUpFile()
 {
+//////////////////////////
+//    toDo : reverse algorithm shall only allow one project at one time so set_filename.size shall not be more than one
+//		- mapping shall be in choosen diretory to reverse algorithm?? how about different project? just combine the 				mapping? safe to assume that's no collision?? or user shall also choose where the mapping
+//		- solution : shall combine different mapping, name of mapping file shall follow the format of be 				projectNameMAP.txt, purpose of following this format is so that different mapping files shall or can 				be stored in one location, do the same for header file
+//			- different mapping file may be combine,advantage of combining different mapping->able to reverse 					algortihm on different project at one time but take note of possible collision ->when loading 					for mapping file, scan for *MAP.txt
+//		-how to scan for *MAP.txt files?????????
+//		- shall delete mapping file after reverse algorithm
+//////////////////////////
         string s_fileName;
         set<string> set_fileName;
         set<string>::iterator m_setIter;
@@ -23,8 +31,27 @@ void Plugin2::setUpMapping()
     string s_fileName = "mapping";
         string s_string;
 cout << "Plugin2::setUpMapping() : "  << endl;
-        m_engine->getFileManager()->loadMappingFile(s_fileName, s_string);
-        m_algorithm.setUpMapping(s_string, m_mapping);
+
+        set<string> set_fileName;
+        set<string>::iterator m_setIter;
+        //m_engine->getFileManager()->getTargetFile(set_fileName);
+        m_engine->getmainwindow()->getfullPathNamesList(set_fileName);
+
+
+	map<string,string> map_tempMapping;
+	m_mapping.clear();
+        for ( m_setIter=set_fileName.begin() ; m_setIter != set_fileName.end(); m_setIter++ ) {
+		if((*m_setIter).find("MAP")!=string::npos) {
+			//set_mappingName.insert(*m_setIter);
+			s_fileName = *m_setIter;
+			m_engine->getFileManager()->loadMappingFile(s_fileName, s_string);
+			m_algorithm.setUpMapping(s_string, map_tempMapping);
+			m_mapping.insert(map_tempMapping.begin(), map_tempMapping.end());
+		}
+	}
+
+
+
 }
 
 void Plugin2::algorithm() {
@@ -102,21 +129,28 @@ for ( m_mIter=m_output.begin() ; m_mIter != m_output.end(); m_mIter++ ) {
 
 
 
-
 string directoryName;
-string headerFileName;
+//string headerFileName;
 string mappingFileName;
+string folderName;
+string projectName;
 directoryName = m_userOptions->s_saveToDirectory;
-m_userOptions->s_projectName = "/obsfun";
-directoryName.append(m_userOptions->s_projectName);
-m_userOptions->s_headerFileName = "/obsfun.h";
-headerFileName.insert(0, directoryName);
-headerFileName.append(m_userOptions->s_headerFileName);
-m_userOptions->s_mappingFileName = "/mapping";
-mappingFileName.insert(0, directoryName);
-mappingFileName.append(m_userOptions->s_mappingFileName);
+projectName = m_userOptions->s_projectName;             //= "/obsfun";
+folderName = "/" + projectName;
+directoryName.append(folderName);
 
-m_engine->getFileManager()->writeDirectory(directoryName, m_output);
+cout << "plugin2: before s_headerFileName"  << endl;
+m_userOptions->s_headerFileName.clear();		//"/obsfun.h";
+
+
+cout << "plugin2: after s_headerFileName"  << endl;
+//headerFileName.insert(0, directoryName);
+//headerFileName.append(m_userOptions->s_headerFileName);
+//m_userOptions->s_mappingFileName = "/mapping";
+//mappingFileName.insert(0, directoryName);
+//mappingFileName.append(m_userOptions->s_mappingFileName);
+
+m_engine->getFileManager()->writeDirectory(directoryName, m_output, projectName);
         //m_file.writeFile(outputSecondPass, "output.cpp");
        // m_engine->getAlgorithm()->createHeaderFile(m_define, s_headerFile);    // take note of multiple incldue of header, #ifdef #define....#endif
        // m_engine->getFileManager()->writeFile(s_headerFile, headerFileName);

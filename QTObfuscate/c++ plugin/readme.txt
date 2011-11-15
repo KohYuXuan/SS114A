@@ -9,7 +9,7 @@ ar rc libObf.a *.o
 
 ==========================================
 == plugin1
-== cd Desktop/c++\ plugin
+== cd Desktop/obfuscation/QTObfuscate/c++\ plugin
  - g++ -shared -o libAlgorithm1.so Plugin1.cpp Algorithm1.cpp libObf.a -I/usr/share/qt4/include -I/usr/share/qt4/include/QtGui -I/usr/share/qt4/include/QtCore -L/usr/lib/qt4/plugins -lQtCore -lQtGui
 
  - copy and paste libAlgorithm1.so to same folder as EXE
@@ -18,6 +18,7 @@ ar rc libObf.a *.o
 
 ==========================================
 == plugin2
+== cd Desktop/obfuscation/QTObfuscate/c++\ plugin
  - g++ -shared -o libAlgorithm2.so Plugin2.cpp ReverseAlgorithm.cpp libObf.a -I/usr/share/qt4/include -I/usr/share/qt4/include/QtGui -I/usr/share/qt4/include/QtCore -L/usr/lib/qt4/plugins -lQtCore -lQtGui
 
  - copy and paste libAlgorithm2.so to same folder as EXE

@@ -1,6 +1,11 @@
 //#include "Engine.h"
 #include "Plugin.h"
 #include "Algorithm1.h"
+
+
+//#define ADMIN_FOLDER_NAME "/ADMIN/"
+
+
 class Plugin1 : public Plugin {
 private:
 	//FileManager m_fileManager;

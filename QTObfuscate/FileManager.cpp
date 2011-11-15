@@ -144,7 +144,7 @@ void FileManager::writeFile(const string& fileName, const string& v_input)
         out.close();
 }
 */
-void FileManager::writeDirectory(const string& directoryName, map<string,string>& listOfBuffers)
+void FileManager::writeDirectory(const string& directoryName, map<string,string>& listOfBuffers, const string& projectName, const string& headerFileName, const string& adminFileName)
 {
     cout << "FileManager::writeDirectory : " << endl;
 	if(listOfBuffers.empty())
@@ -155,17 +155,29 @@ void FileManager::writeDirectory(const string& directoryName, map<string,string>
         string s_additionalDirectoryName;
         string s_FullDirectoryName;
         string s_headerFile;
-        size_t i_firstPathSlash = 0, i_secondPathSlash = 0, i_findQuote = 0;
+        size_t i_firstPathSlash = 0, i_secondPathSlash = 0;  //, i_findQuote = 0;
 
 
 
         #ifdef WINDOW
             mkdir(directoryName.c_str());
+            if(adminFileName!="")
+                mkdir(adminFileName.c_str());
         #else
             mkdir(directoryName.c_str(),0777);
+            if(adminFileName!="")
+                mkdir(adminFileName.c_str(),0777);
+cout<<"directoryName========================="<<directoryName << endl;
+cout<<"adminFileName=========================" <<adminFileName<< endl;
+cout<<"make directory=========================" << endl;
         #endif
 	for ( m_mIter=listOfBuffers.begin() ; m_mIter != listOfBuffers.end(); m_mIter++ ) {
-                s_headerFile = HEADERFILE;
+   cout << "FileManager::before s_headerFile : " << endl;
+                if(headerFileName!="") {
+                    s_headerFile = "#include \"" + headerFileName + "\" \n";
+                    // "#include \"obsfun.h\"\n"
+                }
+  cout << "FileManager::s_headerFile : " << s_headerFile << endl;
                 i_firstPathSlash = (*m_mIter).first.find_first_of('/');
                 i_secondPathSlash = (*m_mIter).first.find_first_of('/',i_firstPathSlash+1);
                 while(i_secondPathSlash != string::npos) {
@@ -174,8 +186,8 @@ void FileManager::writeDirectory(const string& directoryName, map<string,string>
                     s_FullDirectoryName = directoryName;
                     s_FullDirectoryName.append(s_additionalDirectoryName);
 
-                    i_findQuote = s_headerFile.find('"');
-                    s_headerFile.insert(i_findQuote+1, "../");
+                    //i_findQuote = s_headerFile.find('"');
+                    //s_headerFile.insert(i_findQuote+1, "../");
                     #ifdef WINDOW
                         mkdir(s_FullDirectoryName.c_str());
                     #else
@@ -190,9 +202,33 @@ void FileManager::writeDirectory(const string& directoryName, map<string,string>
                    // s_additionalDirectoryName = "";
                 //}
  cout << "FileManager::writeDirectory2 : " << endl;
+
+
+
+
                 s_fileName = directoryName + (*m_mIter).first;
-                s_buffer = s_headerFile;
+                if(headerFileName!="")
+                    s_buffer = s_headerFile;
                 s_buffer.append((*m_mIter).second);
+
+
+                if(headerFileName=="") {
+                    int i_pos=0;
+cout << "FileManager::writeDirectory2 : before find(userOptions->s_projectName)" << endl;
+                    i_pos  = s_buffer.find(projectName);
+ cout << "FileManager::writeDirectory2 : after find(userOptions->s_projectName)" << endl;
+                    if(i_pos!=string::npos) {
+                        int i_pos2 = s_buffer.rfind("#include", i_pos);
+                        i_pos = s_buffer.find("\"", i_pos);
+ cout << "FileManager::writeDirectory2 : before s_buffer.erase" << endl;
+                        s_buffer.erase(s_buffer.begin()+i_pos2, s_buffer.begin()+i_pos+2);
+ cout << "FileManager::writeDirectory2 : after s_buffer.erase : i_pos2"<<i_pos2 << endl;
+
+                    }
+
+                }
+
+
  cout << "FileManager::(*m_mIter).second) : " << (*m_mIter).second << endl;
 		m_file.writeFile(s_buffer, s_fileName);
 	}
@@ -249,10 +285,16 @@ int FileManager::mapFileNameToBuffer(const string& s_FullFilePath)
 			}
 			else {
 				FileManager::m_sRelativePathName += "/" + string(dirp->d_name);
-				m_file.loadFile(s_tempFullPathName, s_buffer);
-				//m_setDisplayFiles.insert(string(dirp->d_name));
-				m_vListOfBuffers.insert ( pair<string,string>(FileManager::m_sRelativePathName,s_buffer) );
-				//m_sRelativePathName = s_oldDirectory;
+                                if(s_tempFullPathName.find(".cpp")!=string::npos ||
+                                        s_tempFullPathName.find(".c")!=string::npos ||
+                                        s_tempFullPathName.find(".h")!=string::npos ||
+                                        s_tempFullPathName.find(".hpp")!=string::npos
+                                  ) {
+                                        m_file.loadFile(s_tempFullPathName, s_buffer);
+                                        //m_setDisplayFiles.insert(string(dirp->d_name));
+                                        m_vListOfBuffers.insert ( pair<string,string>(FileManager::m_sRelativePathName,s_buffer) );
+                                        //m_sRelativePathName = s_oldDirectory;
+                                    }
 			}
 			FileManager::m_sRelativePathName = s_oldDirectory;
 		}
@@ -261,10 +303,16 @@ int FileManager::mapFileNameToBuffer(const string& s_FullFilePath)
 		return 0;
 	}
 	else{
-		m_file.loadFile(s_FullFilePath, s_buffer);
-		//m_setDisplayFiles.insert(string(dirp->d_name));
-		m_vListOfBuffers.insert ( pair<string,string>(s_parentDirectory, s_buffer) );
-		//closedir(dp);
+            if(s_FullFilePath.find(".cpp")!=string::npos ||
+                    s_FullFilePath.find(".c")!=string::npos ||
+                    s_FullFilePath.find(".h")!=string::npos ||
+                    s_FullFilePath.find(".hpp")!=string::npos
+              ) {
+                    m_file.loadFile(s_FullFilePath, s_buffer);
+                    //m_setDisplayFiles.insert(string(dirp->d_name));
+                    m_vListOfBuffers.insert ( pair<string,string>(s_parentDirectory, s_buffer) );
+                    //closedir(dp);
+                }
 	}
 	FileManager::m_sRelativePathName.clear();
 	return 0;

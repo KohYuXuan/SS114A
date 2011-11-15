@@ -126,22 +126,57 @@ for ( m_mIter=m_output.begin() ; m_mIter != m_output.end(); m_mIter++ ) {
 
 
 string directoryName;
-string headerFileName;
+string headerPathName;
 string mappingFileName;
-directoryName = m_userOptions->s_saveToDirectory;
-m_userOptions->s_projectName = "/obsfun";
-directoryName.append(m_userOptions->s_projectName);
-m_userOptions->s_headerFileName = "/obsfun.h";
-headerFileName.insert(0, directoryName);
-headerFileName.append(m_userOptions->s_headerFileName);
-m_userOptions->s_mappingFileName = "/mapping";
-mappingFileName.insert(0, directoryName);
-mappingFileName.append(m_userOptions->s_mappingFileName);
+string folderName;
+string projectName;
+string adminName;
+string adminPathName;
+adminName = ADMIN_FILE_NAME;
 
-m_engine->getFileManager()->writeDirectory(directoryName, m_output);
+
+directoryName = m_userOptions->s_saveToDirectory;
+projectName = m_userOptions->s_projectName;             //= "/obsfun";
+folderName = "/" + projectName;
+directoryName.append(folderName);
+m_userOptions->s_headerFileName = projectName + ".h";       //"/obsfun.h";
+//headerPathName.insert(0, directoryName);
+//headerPathName.append(adminName);
+/*
+adminPathName = m_userOptions->s_adminFileName;
+adminPathName.append(adminName);
+*/
+//cout << "after append(adminName)" << headerPathName << endl;
+//adminPathName = headerPathName;
+
+//headerPathName.append(m_userOptions->s_headerFileName);
+
+//cout << "after append(m_userOptions->s_headerFileName);" << headerPathName << endl;
+
+
+
+
+adminPathName = m_userOptions->s_adminFileName;
+adminPathName += "/" + projectName + ADMIN_FILE_NAME + "/"; 
+
+
+
+headerPathName = adminPathName + m_userOptions->s_headerFileName;
+
+
+
+
+m_userOptions->s_mappingFileName = "/" + projectName + "MAP";         //"/mapping";
+mappingFileName =  adminPathName + m_userOptions->s_mappingFileName;
+/*
+mappingFileName.insert(0, directoryName);
+mappingFileName.append(adminName);
+mappingFileName.append(m_userOptions->s_mappingFileName);
+*/
+m_engine->getFileManager()->writeDirectory(directoryName, m_output, projectName, m_userOptions->s_headerFileName, adminPathName);
 	//m_file.writeFile(outputSecondPass, "output.cpp");
 	m_algorithm.createHeaderFile(m_define, s_headerFile);    // take note of multiple incldue of header, #ifdef #define....#endif
-        m_engine->getFileManager()->writeFile(s_headerFile, headerFileName);
+        m_engine->getFileManager()->writeFile(s_headerFile, headerPathName);
 
 
         map<string,string> m_combinedMapping;

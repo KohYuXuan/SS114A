@@ -46,7 +46,7 @@ void showDisplayFile();
 void showTargetFile();
 int readDirectory(const string& dir);
 void loadAllFileIntoBuffer(); // call clearFileBuffer() before using this function to load new buffer
-void writeDirectory(const string& directoryName, map<string,string>& listOfBuffers);
+void writeDirectory(const string& directoryName, map<string,string>& listOfBuffers, const string& projectName, const string& headerFileName = "", const string& adminFileName = "");
 void getListOfBuffers(map<string,string >& listOfBuffers);
 void getDisplayFile(set<string>& set_input);
 void getTargetFile(set<string>& set_input);
