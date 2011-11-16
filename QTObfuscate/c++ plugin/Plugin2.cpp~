@@ -150,7 +150,7 @@ cout << "plugin2: after s_headerFileName"  << endl;
 //mappingFileName.insert(0, directoryName);
 //mappingFileName.append(m_userOptions->s_mappingFileName);
 
-m_engine->getFileManager()->writeDirectory(directoryName, m_output);
+m_engine->getFileManager()->writeDirectory(directoryName, m_output, projectName);
         //m_file.writeFile(outputSecondPass, "output.cpp");
        // m_engine->getAlgorithm()->createHeaderFile(m_define, s_headerFile);    // take note of multiple incldue of header, #ifdef #define....#endif
        // m_engine->getFileManager()->writeFile(s_headerFile, headerFileName);

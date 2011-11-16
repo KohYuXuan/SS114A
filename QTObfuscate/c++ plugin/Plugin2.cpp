@@ -81,9 +81,9 @@ void Plugin2::algorithm() {
         m_engine->getFileManager()->getListOfBuffers(m_listOfBuffers);
 
         //m_file.loadFile("target2.cpp", str);
-        m_engine->getFileManager()->loadFile("keywords.txt", set_keywords);
+        m_engine->getFileManager()->loadFile(KEYWORDS_LIST, set_keywords);
         //m_file.loadFile("keywords.txt", set_wordsToFind);
-        m_engine->getFileManager()->loadFile("notToWords.txt", set_wordsNotTo);
+        m_engine->getFileManager()->loadFile(NOT_TO_LIST, set_wordsNotTo);
         for(unsigned int i=0; i<str.size(); ++i)
                 cout << str[i];
         cout << endl;

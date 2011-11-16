@@ -12,6 +12,8 @@
 #define SAFE_DELETE( p )       { if( p ) { delete ( p );     ( p ) = NULL; } }
 //#define HEADERFILE "#include \"obsfun.h\"\n"
 #define ADMIN_FILE_NAME "ADMIN"
+#define NOT_TO_LIST "Config/notToWords.txt"
+#define KEYWORDS_LIST "Config/keywords.txt"
 class PluginManager;
 
 struct Options
@@ -22,6 +24,7 @@ struct Options
         string s_mappingFileName;
         string s_pluginFileName;
         string s_adminFileName;
+        string s_newPluginPathName;
 
 };
 

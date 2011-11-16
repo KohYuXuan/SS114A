@@ -52,6 +52,7 @@ void getDisplayFile(set<string>& set_input);
 void getTargetFile(set<string>& set_input);
 int mapFileNameToBuffer(const string& s_FullFilePath);
 void writeFile(const string& s_input, const string& fileName);
+void loadFile(const string& fileName, vector<string>& set_str);
 void loadFile(const string& fileName, set<string>& set_str);
 void loadFile(const string& fileName, string& s_str);
 void writeMappingToFile(map<string,string>& m_input, const string& fileName);

@@ -189,7 +189,7 @@ void Algorithm1::modiftString(string& output, const string& str, const vector<st
 	output.clear();
 
 if(v.empty()) {
-	cout << "ReverseAlgorithm::vector is empty"  << endl;
+	cout << "Algorithm1::modiftString::vector is empty"  << endl;
 cout << " shall inform user================================================================================="<<endl;
 cout<<"reason may be mapping file not found=================================================="<<endl;
 	return;

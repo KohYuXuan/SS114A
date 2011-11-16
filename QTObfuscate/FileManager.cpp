@@ -324,6 +324,11 @@ void FileManager::writeFile(const string& s_input, const string& fileName)
 	m_file.writeFile(s_input,fileName);
 }
 
+void FileManager::loadFile(const string& fileName, vector<string>& set_str)
+{
+        m_file.loadFile(fileName, set_str);
+}
+
 void FileManager::loadFile(const string& fileName, set<string>& set_str)
 {
 	m_file.loadFile(fileName, set_str);

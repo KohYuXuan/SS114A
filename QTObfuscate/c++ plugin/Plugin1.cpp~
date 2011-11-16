@@ -73,7 +73,7 @@ cout << "Plugin1::getListOfBuffers() : after" << endl;
 	//m_file.loadFile("target2.cpp", str);
 	m_engine->getFileManager()->loadFile("keywords.txt", set_keywords);
 	//m_file.loadFile("keywords.txt", set_wordsToFind);
-	m_engine->getFileManager()->loadFile("notToWords.txt", set_wordsNotTo);	
+	m_engine->getFileManager()->loadFile(NOT_TO_LIST, set_wordsNotTo);	
         for(unsigned int i=0; i<str.size(); ++i)
 		cout << str[i];
 	cout << endl;
@@ -167,10 +167,12 @@ headerPathName = adminPathName + m_userOptions->s_headerFileName;
 
 
 m_userOptions->s_mappingFileName = "/" + projectName + "MAP";         //"/mapping";
+mappingFileName =  adminPathName + m_userOptions->s_mappingFileName;
+/*
 mappingFileName.insert(0, directoryName);
 mappingFileName.append(adminName);
 mappingFileName.append(m_userOptions->s_mappingFileName);
-
+*/
 m_engine->getFileManager()->writeDirectory(directoryName, m_output, projectName, m_userOptions->s_headerFileName, adminPathName);
 	//m_file.writeFile(outputSecondPass, "output.cpp");
 	m_algorithm.createHeaderFile(m_define, s_headerFile);    // take note of multiple incldue of header, #ifdef #define....#endif

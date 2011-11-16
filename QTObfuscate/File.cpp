@@ -22,7 +22,26 @@ void File::loadFile(const string& fileName, string& v)
         }
 	in.close();
 }
-
+void File::loadFile(const string& fileName, vector<string>& set_str)
+{
+    set_str.clear();
+    ifstream in(fileName.c_str());
+        string words;
+    if(in.is_open()) {
+        while (!in.eof()){
+            getline(in,words);
+            if(!words.empty())
+            {
+                set_str.push_back(words);
+                //set_str.append(1,'\n');
+            }
+        }
+    }else
+        {
+            cout<<"Error opening file!\n";
+        }
+        in.close();
+}
 void File::loadFile(const string& fileName, set<string>& set_str)
 {
     set_str.clear();

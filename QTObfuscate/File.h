@@ -28,6 +28,8 @@ public:
 
 void loadFile(const string& fileName, string& v);
 
+void loadFile(const string& fileName, vector<string>& set_str);
+
 void loadFile(const string& fileName, set<string>& set_str);
 
 void writeFile(const string& s_input, const string& fileName);
