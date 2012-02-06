@@ -2,6 +2,7 @@
 #include <vector>
 #include <iostream>
 #include <string>
+#include "abc.h"
 using namespace std;
 
 void loadFile(string& s_str)

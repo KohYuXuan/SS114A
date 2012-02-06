@@ -3,33 +3,52 @@
 
 #include "Engine.h"
 
+
 class Engine;
 class Options;
 
-class Plugin {
-private:
 
+class Plugin {
 
 protected:
     Engine* m_engine;
     Options *m_userOptions;
 
+    string directoryName;
+    string headerPathName;
+    string headerFileName;
+    string mappingFileName;
+    string folderName;
+    string projectName;
+    string adminName;
+    string adminPathName;
+    string s_mappingFileName;
+
+
 
 public:
-    //Plugin(){m_engine = g_engine;}
     Plugin(){}
     virtual ~Plugin(){}
 
-virtual void algorithm()=0;
+    virtual bool algorithm()=0;
 
     void setEngine(Engine* p_engine) {m_engine = p_engine;}
     void setUserOptions(Options *p_userOptions) {m_userOptions = p_userOptions;}
 
 
+
+	// save user choosen path into target list
+    bool setUpFile();
+    void setUpOutputFiles();
+    void writeDirectory(map<string,string>& p_listOfBuffers, bool b_headerFile = false);
+    void compileFiles(map<string,string>& p_listOfBuffers, bool b_includeHeaderPath = true);
+
+
+
 };
 
-// the types of the class factories
 typedef Plugin* create_t();
 typedef void destroy_t(Plugin*);
+
 
 #endif // PLUGIN_H

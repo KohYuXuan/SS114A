@@ -1,20 +1,31 @@
 #ifndef ENGINE_H
 #define ENGINE_H
 
-
-//#include "Algorithm1.h"
 #include "FileManager.h"
-//#include "Plugin1.h"
 #include "mainwindow.h"
-//#include "Plugin2.h"
 #include "PluginManager.h"
 
-#define SAFE_DELETE( p )       { if( p ) { delete ( p );     ( p ) = NULL; } }
-//#define HEADERFILE "#include \"obsfun.h\"\n"
-#define ADMIN_FILE_NAME "ADMIN"
-#define NOT_TO_LIST "Config/notToWords.txt"
-#define KEYWORDS_LIST "Config/keywords.txt"
+
+#if defined(_WIN32) || defined(WIN32) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__BORLANDC__)
+#define WINDOW
+#endif
+
+
+#define ADMIN_FILE_NAME         "ADMIN"
+#define DEFAULT_PLUGIN_PATH     "./plugin/"
+#define PLUGIN_INFO_PATH        "plugin/plugin.txt"
+#define NOT_TO_LIST             "Config/notToWords.txt"
+#define KEYWORDS_LIST           "Config/keywords.txt"
+#define CONFIG_FILE           "Config/config.txt"
+
+#define NUM_RANDOM               8
+#define CANNOT_LOAD_PLUGIN       1
+#define ALGORITHM_FAILED       2
+#define SAFE_DELETE( p )         { if( p ) { delete ( p );     ( p ) = NULL; } }
+
+
 class PluginManager;
+class FileManager;
 
 struct Options
 {
@@ -25,35 +36,25 @@ struct Options
         string s_pluginFileName;
         string s_adminFileName;
         string s_newPluginPathName;
-
 };
 
 extern Options *userOptions;
 
 class Engine {
+
 private:
 	FileManager* m_fileManager;
-        //Algorithm1* m_algorithm1;
-        //Plugin1* m_plugin;
-        //Plugin2* m_plugin2;
         MainWindow* m_mainwindow;
         PluginManager* m_pluginManager;
-
 	bool m_loaded;
-protected:
-
 public:
+
 	Engine();
 	virtual ~Engine();
 
 	FileManager *getFileManager();
-        //Algorithm1 *getAlgorithm();
-        //Plugin1 *getPlugin();
-       // Plugin2 *getPlugin2();
         PluginManager *getPluginManager();
         MainWindow *getmainwindow();
-
-
 };
 
 extern Engine *g_engine;

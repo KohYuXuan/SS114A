@@ -8,14 +8,19 @@ QT       += core gui
 
 TARGET = QTObfuscate
 TEMPLATE = app
-
+LIBS = -ldl
+CONFIG += static
+    win32 {
+    QMAKE_LFLAGS += -static-libgcc
+    }
 
 SOURCES += main.cpp\
         mainwindow.cpp \
     FileManager.cpp \
     File.cpp \
     Engine.cpp \
-    PluginManager.cpp
+    PluginManager.cpp \
+    Plugin.cpp
 
 HEADERS  += mainwindow.h \
     FileManager.h \
@@ -25,6 +30,11 @@ HEADERS  += mainwindow.h \
     Plugin.h
 
 FORMS    += mainwindow.ui
+
+
+
+
+
 
 
 

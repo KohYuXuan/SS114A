@@ -1,0 +1,31 @@
+
+#include "Plugin.h"
+#include "AlgorithmControlFlow.h"
+
+
+class PluginControlFlow : public Plugin {
+
+private:
+	AlgorithmControlFlow m_algorithm;
+
+public:
+
+	PluginControlFlow() { }
+
+
+
+	// carray out the algorithm
+	virtual bool algorithm();
+
+
+};
+
+
+extern "C" Plugin* create() {
+    return new Plugin1;
+}
+
+extern "C" void destroy(Plugin* p) {
+    delete p;
+}
+

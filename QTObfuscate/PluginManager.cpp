@@ -1,35 +1,39 @@
 #include "PluginManager.h"
 
-void PluginManager::loadPlugin(const std::string& pluginName)
+int PluginManager::loadPlugin(const std::string& pluginName)
 {
-    // load the triangle library
-    void* triangle = dlopen(pluginName.c_str(), RTLD_LAZY);
-    if (!triangle) {
+    void* algorithm = dlopen(pluginName.c_str(), RTLD_LAZY);
+    if (!algorithm) {
         cerr << "Cannot load library: " << dlerror() << '\n';
-        //return 1;
+        return CANNOT_LOAD_PLUGIN;
     }
 
     // load the symbols
-    create_t* create_triangle = (create_t*) dlsym(triangle, "create");
-    destroy_t* destroy_triangle = (destroy_t*) dlsym(triangle, "destroy");
-    if (!create_triangle || !destroy_triangle) {
+    create_t* create_algorithm = (create_t*) dlsym(algorithm, "create");
+    destroy_t* destroy_algorithm = (destroy_t*) dlsym(algorithm, "destroy");
+    if (!create_algorithm || !destroy_algorithm) {
         cerr << "Cannot load symbols: " << dlerror() << '\n';
-        //return 1;
+        return CANNOT_LOAD_PLUGIN;
     }
 
     // create an instance of the class
-    Plugin* poly = create_triangle();
-    cout << "before poly->algorithm(); " << endl;
+    Plugin* plugin = create_algorithm();
+
     // use the class
-    poly->setEngine(g_engine);
-    poly->setUserOptions(userOptions);
+    plugin->setEngine(g_engine);
+    plugin->setUserOptions(userOptions);
 
-    poly->algorithm();
+    if(!plugin->algorithm()) {
+            destroy_algorithm(plugin);
+            dlclose(algorithm);
+           return ALGORITHM_FAILED;
+    }
 
-    cout << "after  poly->algorithm(); " << endl;
     // destroy the class
-    destroy_triangle(poly);
+    destroy_algorithm(plugin);
 
-    // unload the triangle library
-    dlclose(triangle);
+    // unload the algorithm library
+    dlclose(algorithm);
+
+    return 0;
 }

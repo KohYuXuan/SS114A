@@ -1,31 +1,28 @@
 #include "ReverseAlgorithm.h"
 #include "Plugin.h"
 
+
 class Plugin2 : public Plugin {
+
 private:
-        //FileManager m_fileManager;
-        //File m_file;
-        //Algorithm1 m_algorithm1;
-        //mainwindow m_mainwindow;
 
         ReverseAlgorithm m_algorithm;
-
         map<string,string> m_mapping;
-protected:
 
 public:
+	// save user choosen path into target list
+	void setUpFile();
 
-void setUpFile();
+	// read MAP files which contains list of random strings and thier original names
+	void setUpMapping();
 
-void setUpMapping();
-
-virtual void algorithm();
-
-
+	// carray out the algorithm
+	virtual void algorithm();
 };
 
+
 extern "C" Plugin* create() {
-    return new Plugin1;
+    return new Plugin2;
 }
 
 extern "C" void destroy(Plugin* p) {

@@ -1,17 +1,21 @@
-//#include "Engine.h"
 
 #include "ReverseAlgorithm.h"
 
 void ReverseAlgorithm::setUpMapping(const string& s_input, map<string,string>& m_output)
 {
+        if(s_input.empty())
+            return;
+
         string s_string;
         size_t i_firstDelim = 0, i_secondDelim = 0;
         vector<string> v_string;
-m_output.clear();
+	m_output.clear();
+
         i_firstDelim = s_input.find_first_of(';');
         i_secondDelim = s_input.find_first_of(';',i_firstDelim+1);
         s_string.assign(s_input.begin(), s_input.begin()+i_firstDelim);
         v_string.push_back(s_string);
+
         while(i_secondDelim != string::npos) {
             s_string.assign(s_input.begin()+i_firstDelim+1, s_input.begin()+i_secondDelim);
             v_string.push_back(s_string);
@@ -19,52 +23,83 @@ m_output.clear();
             i_firstDelim = s_input.find_first_of(';',i_firstDelim+1);
             i_secondDelim = s_input.find_first_of(';',i_secondDelim+1);
         }
+
         i_firstDelim =  0;
         i_secondDelim =  0;
 
-for(int i=0; i<v_string.size(); ++i)
+	for(int i=0; i<v_string.size(); ++i)
+	{
+		m_output.insert (pair<string,string>(v_string[i],v_string[i+1]) );
+		++i;
+	}
+}
+
+void ReverseAlgorithm::reverseModifyString(string& output,
+						const string& s_input,
+						const vector<string>& v_targetWords,
+						map<string,string>& mymap)
 {
-m_output.insert (pair<string,string>(v_string[i],v_string[i+1]) );
-++i;
-}
+    if(s_input.empty() || v_targetWords.empty())
+        return;
 
-map<string,string>::iterator m_iter;
-for ( m_iter=m_output.begin() ; m_iter != m_output.end(); m_iter++ )
-        cout << (*m_iter).first << " => " << (*m_iter).second << endl;
-}
+	locale loc;
+	string s_randomWord, s_originalWord;
+	int i_indexOfTargetWords=0, i_endOfQuote=0;
+	bool b_eof = false; // end of file
+	size_t found=0;
+	map<string,string>::iterator m_iter;
 
-void ReverseAlgorithm::reverseModiftString(string& output, const string& str, const vector<string>& v,map<string,string>& mymap)
-{
-    cout << "ReverseAlgorithm::reverseModiftString : " << endl;
-    locale loc;
-        size_t found=0;
-        string s_temp, s_random;
-        map<string,string>::iterator it;
+	output.clear();
 
-        int i_vector=0;
-        bool b_eof = false;
-        output.clear();
+	if( v_targetWords.empty()) {
+		return;
+	}
 
-if(v.empty()) {
-	cout << "ReverseAlgorithm::vector is empty"  << endl;
-	return;
-}
-
-        for(int i=0; i<str.size(); ++i)
+        for(int i=0; i<s_input.size(); ++i)
         {
+                if(i_indexOfTargetWords < v_targetWords.size() )
+                        s_randomWord =  v_targetWords[i_indexOfTargetWords];
 
-                if(i_vector < v.size() )//&& s_temp.compare(v[i_vector])!=0)
-                        s_temp = v[i_vector];
-
-                //c_temp = str[i];
-                if(found < str.size() && found != string::npos)
-                        found = str.find(s_temp,found);
-cout << "ReverseAlgorithm::reverseModiftString :   i :" << i << endl;
-cout << "ReverseAlgorithm::reverseModiftString :   found :" << found << endl;
+                if(found < s_input.size() && found != string::npos) {
+                        found = s_input.find(s_randomWord,found);
+			if(s_input[found-1] == '\"')
+				found = s_input.find(s_randomWord,found+1);
+		}
                 while(found!=i) {
-                        output.append(1,str[i]);
+                        output.append(1,s_input[i]);
                         ++i;
-                        if(i >= str.size()) {
+
+			if(s_input[i] == '#' && s_input[i+1] == 'i' && 
+		   	   s_input[i+2] == 'n' && s_input[i+3] == 'c' ) { // check for #include
+				skipHeader(s_input, i_endOfQuote, '>');
+
+				if(i_endOfQuote > found) {
+					found = s_input.find(s_randomWord,found);
+					if(s_input[found-1] == '\"' || s_input[found-1] == '<')
+						found = s_input.find(s_randomWord,found+1);		
+				}
+			}
+
+		        if(s_input[i] == '\"') {
+		                skipQuote(s_input, i_endOfQuote, '\"');
+				if(i_endOfQuote > found) {
+					found = s_input.find(s_randomWord,found);
+					if(s_input[found-1] == '\"')
+						found = s_input.find(s_randomWord,found+1);		
+				}
+
+			}
+
+		        if(s_input[i] == '\'') {
+		                skipQuote(s_input, i_endOfQuote, '\'');
+				if(i_endOfQuote > found) {
+					found = s_input.find(s_randomWord,found);
+					if(s_input[found-1] == '\"')
+						found = s_input.find(s_randomWord,found+1);		
+				}
+			}
+
+                        if(i >= s_input.size()) {
                                 b_eof = true;
                                 break;
                         }
@@ -72,53 +107,35 @@ cout << "ReverseAlgorithm::reverseModiftString :   found :" << found << endl;
 
                 if(b_eof) break;
 
-                if(isdigit(s_temp[0],loc)){ // if is digit, program will not run, so just add to buffer and not to obsfucate digit
-
-                        output.append(s_temp);
-                        found += s_temp.size();
+                if(isdigit(s_randomWord[0],loc)){
+                        output.append(s_randomWord);
+                        found += s_randomWord.size();
                         i = found-1;
-                        ++i_vector;
+                        ++i_indexOfTargetWords;
                 }
+
                 if(found == i){
-cout << "Algorithm2::modiftString : s_temp : " << s_temp << endl;
+			if(!s_randomWord.empty())
+                       		m_iter=mymap.find(s_randomWord);
 
+                        if( m_iter != mymap.end())
+                                s_originalWord = (*m_iter).second;cout << (*m_iter).second << endl;
 
+			if(!s_originalWord.empty())
+                             output.append(s_originalWord);
 
-
-
-
-
-
-
-
-
-
-
-
-
-if(!s_temp.empty())
-
-                        it=mymap.find(s_temp);
-                        if( it != mymap.end())
-                                s_random = (*it).second;cout << (*it).second << endl;
-cout << s_temp << endl;
-
-if(!s_random.empty())
-                             output.append(s_random);
-
-                        found += s_temp.size();
+                        found += s_randomWord.size();
                         i = found-1;
-                        ++i_vector;
+                        ++i_indexOfTargetWords;
                 }
         }
-        cout << output << endl;
 }
 
 void ReverseAlgorithm::formatFile(const string& s_input, string& s_output)
 {
-
-    string s_tabToAppend;
-    int i_tabToAppend = 0;
+        string s_tabToAppend;
+	   	int i_tabToAppend = 0;
+		s_output.clear();
 
                 for(int i=0; i<s_input.size();++i) {
 
@@ -142,10 +159,10 @@ void ReverseAlgorithm::formatFile(const string& s_input, string& s_output)
 	                                s_tabToAppend.erase(s_tabToAppend.begin());
 				if(!s_tabToAppend.empty())
                                		 s_output.append(s_tabToAppend);
-				
+
                                 s_output.append("}");
                                 s_output.append("\n");
-                                s_output.append("\t");
+                               // s_output.append("\t");
                                 --i_tabToAppend;
                         }
                         else if(s_input[i] == ';') {
@@ -161,211 +178,66 @@ void ReverseAlgorithm::formatFile(const string& s_input, string& s_output)
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void ReverseAlgorithm::addWordsToList(const string& str,vector<string>& v)
+void ReverseAlgorithm::addWordsToList(const string& s_input, vector<string>& v_targetWords)
 {
         locale loc;
         string s_temp;
-        //bool s_found = false;
-        //int numOfLetter;
-        for(int i=0; i<str.size(); ++i)
-        {
-                if(str[i] == '\"')
-                        skipQuote(str, i, '\"');
-                if(str[i] == '\'')
-                        skipQuote(str, i, '\'');
 
-                //while(str[i] != '\"') {
-                        s_temp.clear();
-                        while(isalnum(str[i],loc) || str[i]=='_')
-                        {
-                                s_temp.append(1,str[i]);
-                                ++i;
-                                //s_found = true;
-                                //++numOfLetter;
-                        }
-                        if(!s_temp.empty())
-                                v.push_back(s_temp);
-                        //i += numOfLetter;
-                        //if(i>=str.size()) break;
-                        //if(!s_found)
-                                //++i;
-                        //s_found = false;
-                //}++i;
-                //while(str[i] != '\"') { // skip quoted string
-                        //++i;
-                //}
-        }
-        for(unsigned int i=0; i<v.size(); ++i)
+        for(int i=0; i<s_input.size(); ++i)
         {
-                cout << v[i] << endl;
+                if(s_input[i] == '\"')
+                        skipQuote(s_input, i, '\"');
+                if(s_input[i] == '\'')
+                        skipQuote(s_input, i, '\'');
+
+if(s_input[i] == '#' && s_input[i+1] == 'i' && 
+		   	   s_input[i+2] == 'n' && s_input[i+3] == 'c' ) // check for #include
+		skipHeader(s_input, i, '>');
+
+		s_temp.clear();
+
+                while(isalnum(s_input[i],loc) || s_input[i]=='_')
+                {
+                	s_temp.append(1,s_input[i]);
+                	++i;
+                }
+
+                if(!s_temp.empty())
+                	v_targetWords.push_back(s_temp);
         }
 }
 
-
-
-
-
-
-void ReverseAlgorithm::modiftString(string& output, const string& str, const vector<string>& v,map<string,string>& mymap)
-{	locale loc;
-        size_t found=0;
-        string s_temp, s_random;
-        map<string,string>::iterator it;
-        set<string>::iterator set_it;
-        int i_vector=0;
-        bool b_eof = false;
-        output.clear();
-
-
-        for(int i=0; i<str.size(); ++i)
-        {
-
-                if(i_vector < v.size() )//&& s_temp.compare(v[i_vector])!=0)
-                        s_temp = v[i_vector];
-
-                //c_temp = str[i];
-                if(found < str.size() && found != string::npos)
-                        found = str.find(s_temp,found);
-
-                while(found!=i) {
-                        output.append(1,str[i]);
-                        ++i;
-                        if(i >= str.size()) {
-                                b_eof = true;
-                                break;
-                        }
-                }
-
-                if(b_eof) break;
-
-                if(isdigit(s_temp[0],loc)){ // if is digit, program will not run, so just add to buffer and not to obsfucate digit
-
-                        output.append(s_temp);
-                        found += s_temp.size();
-                        i = found-1;
-                        ++i_vector;
-                }
-                if(found == i){
-
-
-
-cout << "Algorithm1::modiftString : s_temp : " << s_temp << endl;
-                        it=mymap.find(s_temp);
-                        if( it != mymap.end())
-                                s_random = (*it).second;//cout << (*it).second << endl;
-//cout << s_temp << endl;
-                        output.append(s_random);
-                        found += s_temp.size();
-                        i = found-1;
-                        ++i_vector;
-                }
-        }
-        cout << output << endl;
-}
-
-
-
-void ReverseAlgorithm::removeWordsFromList(map<string,string> m_input,vector<string>& vec)
+void ReverseAlgorithm::removeWordsFromList(map<string,string> m_input, vector<string>& v_targetWords)
 {
-cout << "ReverseAlgorithm::removeWordsFromList: "  << endl;
-set<string> set_input;
-map<string,string>::iterator it;
-for ( it=m_input.begin() ; it != m_input.end(); it++ ) {
-    set_input.insert((*it).first);
-}
+	set<string> set_input;
+	map<string,string>::iterator it;
 
-set<string>::iterator s_it;
-for ( s_it=set_input.begin() ; s_it != set_input.end(); s_it++ ) {
-   cout << "ReverseAlgorithm::set_input  : " << *s_it << endl;
-}
+	for ( it=m_input.begin() ; it != m_input.end(); it++ ) {
+	    set_input.insert((*it).first);
+	}
 
         string s_temp;
         vector<string> v_output;
         set<string>::iterator set_it;
-        for(int i=0; i<vec.size(); ++i)
+
+        for(int i=0; i<v_targetWords.size(); ++i)
         {
-                        s_temp = vec[i];
+                s_temp = v_targetWords[i];
+
                 if( (set_it=set_input.find(s_temp)) != set_input.end() ){
-                                //for ( set_it=set_keywords.begin() ; set_it != set_keywords.end(); set_it++ )
-                                        //cout << "set : " << *set_it << endl;
                         v_output.push_back(s_temp);
                 }
         }
-        vec.clear();
-        vec.assign(v_output.begin(), v_output.end());
 
-        for(int i=0; i<vec.size(); ++i)
-        {
-                cout << "vec : " << vec[i] << endl;
-        }
+        v_targetWords.clear();
+        v_targetWords.assign(v_output.begin(), v_output.end());
 }
 
-void ReverseAlgorithm::findWordsFromList(set<string>& set_input, vector<string>& v_input, vector<string>& v_output)
-{
-        if(set_input.empty() || v_input.empty())
-                return;
 
-        v_output.clear();
-        string s_temp;
-        //vector<string> v_output;
-        set<string>::iterator set_it;
-        for(int i=0; i<v_input.size(); ++i)
-        {
-                        s_temp =  v_input[i];
-                if( (set_it=set_input.find(s_temp)) != set_input.end() ){
-                                //for ( set_it=set_keywords.begin() ; set_it != set_keywords.end(); set_it++ )
-                                        //cout << "set : " << *set_it << endl;
-                        v_output.push_back(s_temp);
-                }
-        }
-        for(int i=0; i<v_output.size(); ++i)
-        {
-                cout << "findWordsFromList : " << v_output[i] << endl;
-        }
-}
-
-void ReverseAlgorithm::skipQuote(const string& s_input, int& i_skip, char c_quote) // c_quote can be double or single quote
+void ReverseAlgorithm::skipQuote(const string& s_input, int& i_skip, char c_quote)
 {
         for(int i=i_skip; i<s_input.size(); ++i)
         {
-
                 while(s_input[i] == c_quote) { // enter quoted string
                         ++i;
                         while(s_input[i] != c_quote && s_input[i-1]!= '\\') { // skip quoted string
@@ -378,133 +250,142 @@ void ReverseAlgorithm::skipQuote(const string& s_input, int& i_skip, char c_quot
         }
 }
 
-
-void ReverseAlgorithm::convertQuotedStringToHex(string& s_searchString)
+void ReverseAlgorithm::convertQuotedHexToString(string& s_input)
 {
         size_t i_firstQuote;
         size_t i_secondQuote;
         size_t i_sizeOfQuotedString;
         vector<string> v_listOfQuotedString;
-        string s_temp;
+        string s_word;
         string s_hex;
+ 	string s_quotedString;
         int i_sizeToRepalce;
         int i_posToReplace;
 
-cout << "s_searchString : " << s_searchString << endl;
-	// find and skip header file
-	int i_headerPos=0;
-	int i_newlinePos=0;
-	i_headerPos = s_searchString.rfind("#include");
+	// find and skip header files
+	//int i_headerPos=0;
+	//int i_newlinePos=0;
+/*
+	i_headerPos = s_input.rfind("#include");
+
 	if(i_headerPos!=string::npos) {
-		i_newlinePos = s_searchString.find("\n", i_headerPos);
-	}	
+		i_newlinePos = s_input.find("\n", i_headerPos);
+	}
+	// find and skip header files (end)
+*/
 
-cout<<"i_headerPos : " << i_headerPos <<endl;
-cout<<"i_newlinePos : " << i_newlinePos <<endl;
-//i_firstQuote = i_newlinePos;
-
-
-
-        //string s_searchString = "hellow world says \"abcdefg\" to \"gg\" world\n";
-        string s_quotedString;
-                i_firstQuote = s_searchString.find_first_of("\"", i_newlinePos);
-                i_secondQuote = s_searchString.find_first_of("\"",i_firstQuote+1);
+                i_firstQuote = s_input.find_first_of("\"", 0);
+                i_secondQuote = s_input.find_first_of("\"",i_firstQuote+1);
+		while(s_input[i_secondQuote-1] == '\\') {
+			i_secondQuote = s_input.find_first_of("\"",i_secondQuote+1);
+		}
 
                 while(i_firstQuote != string::npos && i_secondQuote != string::npos) {
                         i_sizeOfQuotedString = i_secondQuote - i_firstQuote - 1;
-                        s_quotedString.assign(s_searchString, i_firstQuote+1, i_sizeOfQuotedString);
-                        v_listOfQuotedString.push_back(s_quotedString);
-                        i_firstQuote = s_searchString.find_first_of("\"",i_secondQuote+1);
-                        i_secondQuote = s_searchString.find_first_of("\"",i_firstQuote+1);
+                        s_quotedString.assign(s_input, i_firstQuote+1, i_sizeOfQuotedString);
+			if(s_quotedString.find(".h") == string::npos)
+                        	v_listOfQuotedString.push_back(s_quotedString);
+                        i_firstQuote = s_input.find_first_of("\"",i_secondQuote+1);
+                        i_secondQuote = s_input.find_first_of("\"",i_firstQuote+1);
+			while(s_input[i_secondQuote-1] == '\\') {
+				i_secondQuote = s_input.find_first_of("\"",i_secondQuote+1);
+			}
                 }
                 for(int i=0; i<v_listOfQuotedString.size(); ++i) {
                                 //cout << v_listOfQuotedString[i] << endl;
-                        if(s_searchString.find(v_listOfQuotedString[i]) != string::npos) {
-                                s_temp = v_listOfQuotedString[i];
-                                i_posToReplace = s_searchString.find(s_temp);
-                                i_sizeToRepalce = s_temp.size();
+                        if(s_input.find(v_listOfQuotedString[i]) != string::npos) {
+                                s_word = v_listOfQuotedString[i];
+                                i_posToReplace = s_input.find(s_word);
+                                i_sizeToRepalce = s_word.size();
                                 s_hex.clear();
-                                hexToString(s_temp, s_hex);
-                                s_searchString.replace ( i_posToReplace, i_sizeToRepalce, s_hex, 0, s_hex.size() );
-
+                                hexToString(s_word, s_hex);
+                                s_input.replace ( i_posToReplace, i_sizeToRepalce, s_hex, 0, s_hex.size() );
                         }
                 }
-                cout << s_searchString << endl;
-
 }
 
-void ReverseAlgorithm::hexToString(const string& s, string& output)
+void ReverseAlgorithm::hexToString(const string& s_input, string& output)
 {
 
         output.clear();
         size_t found, found2;
-        string temp;
+        string s_hex;
         stringstream ss;
-        int i_temp;
-        found=s.find_first_not_of("\\x");
+        int i_hexToInt;
+
+        found=s_input.find_first_not_of("\\x");
+
         if(found != string::npos)
-                found2=s.find("\\x",found);
+                found2=s_input.find("\\x",found);
+
         while (found!=string::npos) {
-                temp.clear();
+                s_hex.clear();
                 ss.str("");
                 ss.clear();
-		
 
                 if(found2 != string::npos) {
-                        temp.append(s,found, found2-found);
-cout << temp << endl;
+                        s_hex.append(s_input,found, found2-found);
 
-                        ss << hex <<temp;
-                        ss >> i_temp;
-                        //istringstream(temp) >> i_temp;
-cout << static_cast<char>(i_temp)<<endl;
-                        output.append(1, (char) i_temp);
+                        ss << hex <<s_hex;
+                        ss >> i_hexToInt;
 
+                        output.append(1, (char) i_hexToInt);
 
-
-			if(temp.find(".")!=string::npos)
+			if(s_hex.find(".")!=string::npos)
 				output.append(".");
-			if(temp.find("\n")!=string::npos)
+			if(s_hex.find("\n")!=string::npos)
 				output.append("\\n");
-			if(temp.find("t")!=string::npos)
+			if(s_hex.find("t")!=string::npos)
 				output.append("\\t");
 
+                        found=s_input.find_first_not_of("\\x",found2);
+                        found2=s_input.find("\\x",found);
 
 
-
-
-                        found=s.find_first_not_of("\\x",found2);
-                        found2=s.find("\\x",found);
                 }
                 else {
-                        temp.append(s,found, s.size()-found);
-cout << temp << endl;
-                        ss << hex <<temp;
-                        ss >> i_temp;
-                        //istringstream(temp) >> i_temp;
-cout << static_cast<char>(i_temp)<<endl;
-                        output.append(1, (char) i_temp);
+                        s_hex.append(s_input,found, s_input.size()-found);
 
+                        ss << hex <<s_hex;
+                        ss >> i_hexToInt;
 
+                        output.append(1, (char) i_hexToInt);
 
-			if(temp.find(".")!=string::npos)
+			if(s_hex.find(".")!=string::npos)
 				output.append(".");
-			if(temp.find("n")!=string::npos)
+			if(s_hex.find("n")!=string::npos)
 				output.append("\\n");
-			if(temp.find("t")!=string::npos)
+			if(s_hex.find("t")!=string::npos)
 				output.append("\\t");
-
-
-
-
-
                         break;
                 }
-
         }
-        cout  << "hexToString : " << output << endl;
-        //return s;
 }
 
+void ReverseAlgorithm::skipHeader(const string& s_input, int& i_skip, char c_bracket) 
+{
+	int i = i_skip;
+
+	while(s_input[i] == '#' && s_input[i+1] == 'i' && 
+		   	   s_input[i+2] == 'n' && s_input[i+3] == 'c' )// check for #include
+	{
+		while (s_input[i] != '>')
+		{
+			 if(s_input[i] == '\"') {
+		                skipQuote(s_input, i, '\"');
+				i_skip = i;
+				break;
+			}
+
+			++i;
+		}
+
+		if(s_input[i] == '>')
+			++i;
+
+		i_skip = i;
+
+	}
+}
 
 

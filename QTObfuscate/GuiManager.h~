@@ -1,0 +1,21 @@
+#ifndef GUIMANAGER_H
+#define GUIMANAGER_H
+
+#include <iostream>
+#include <set>
+#include <string>
+#include "Engine.h"
+#include "mainwindow.h"
+
+class GuiManager {
+private:
+	MainWindow m_mainwindow;
+public:
+	void getfullPathNamesList(std::set<std::string>& set_input)
+	{
+		m_mainwindow.getfullPathNamesList(set_input);
+	}
+};
+
+
+#endif
