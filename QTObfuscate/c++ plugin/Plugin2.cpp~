@@ -1,0 +1,137 @@
+
+#include "Plugin2.h"
+
+
+bool Plugin2::setUpFile()
+{
+        string s_fileName;
+        set<string> set_fileName;
+        set<string>::iterator m_setIter;
+
+        m_engine->getmainwindow()->getfullPathNamesList(set_fileName);
+        m_engine->getFileManager()->clearTargetFile();
+
+        if(set_fileName.empty())
+            return false;
+
+        for ( m_setIter=set_fileName.begin() ; m_setIter != set_fileName.end(); m_setIter++ ) {
+                s_fileName = *m_setIter;
+                m_engine->getFileManager()->addTargetFile(s_fileName);
+        }
+
+        return true;
+}
+
+bool Plugin2::setUpMapping()
+{
+        string s_string;
+        string s_fileName;
+        set<string> set_fileName;
+        set<string>::iterator m_setIter;
+	map<string,string> map_tempMapping;
+	m_mapping.clear();
+
+        m_engine->getmainwindow()->getfullPathNamesList(set_fileName);
+
+        for ( m_setIter=set_fileName.begin() ; m_setIter != set_fileName.end(); m_setIter++ ) {
+		if((*m_setIter).find("MAP")!=string::npos) {
+			s_fileName = *m_setIter;
+			m_engine->getFileManager()->loadMappingFile(s_fileName, s_string);
+			m_algorithm.setUpMapping(s_string, map_tempMapping);
+			m_mapping.insert(map_tempMapping.begin(), map_tempMapping.end());
+			return true;
+		}
+	}
+        return false;
+}
+
+bool Plugin2::algorithm() {
+
+        string s_target; // contains contents of file
+        string output; // contains the first result
+        string outputSecondPass; // contains the final result
+        vector<string> v_listOfWords; // list of words to act on for each files
+        map<string,string> m_listOfBuffers; // contains targeted filenames and the contents of the files to act on
+        map<string,string> m_output; // contains targeted filenames and final result to ouput to files
+        map<string,string>::iterator m_mIter;
+
+	// save user choosen path into target list
+        if(!setUpFile())
+            return false;
+	// read MAP files which contains list of random strings and thier original names
+        if(!setUpMapping())
+            return false;
+
+        // clear previous content of files that had been read into buffer
+	m_engine->getFileManager()->clearFileBuffer();
+
+        // read directories recursively for files from target list
+        // load content of files from target list into buffer
+        // call clearFileBuffer() before using this function to load new files into buffer
+        m_engine->getFileManager()->loadAllFileIntoBuffer();
+
+        // get buffers that contains content of files from target list
+        m_engine->getFileManager()->getListOfBuffers(m_listOfBuffers);
+
+
+	if (m_listOfBuffers.empty())
+		return false;
+
+	bool b_emptyBuffer = true;
+	for(m_mIter=m_listOfBuffers.begin(); m_mIter != m_listOfBuffers.end(); ++m_mIter) {
+		
+		if (!(*m_mIter).second.empty())
+			b_emptyBuffer = false;
+
+		if(b_emptyBuffer)
+			return false;
+	}
+
+	// loop through the target list of files
+	for(m_mIter=m_listOfBuffers.begin(); m_mIter != m_listOfBuffers.end(); ++m_mIter) {
+		s_target.clear();
+		v_listOfWords.clear();
+
+		// contents of file to act on
+		s_target = (*m_mIter).second;
+
+		// scan from buffer the contents of file for random words that needs to convert back to original names and add to vector<string>
+		m_algorithm.addWordsToList(s_target,v_listOfWords);
+
+		// remove from vector<string> list of words not found in MAP files which contains list of random strings and thier original names
+		m_algorithm.removeWordsFromList(m_mapping ,v_listOfWords);
+
+		// convert random strings into thier original names
+		m_algorithm.reverseModifyString(output, s_target, v_listOfWords, m_mapping);
+
+		// strings in quote will need to be un-hex
+		m_algorithm.convertQuotedHexToString(s_target);
+
+
+
+		// format file by adding spaces and tabs
+		m_algorithm.formatFile(output, outputSecondPass);
+
+		// insert targeted filenames and final result
+		m_output.insert ( pair<string,string>((*m_mIter).first, outputSecondPass ));
+	}
+
+	string directoryName;
+	string mappingFileName;
+	string folderName;
+	string projectName;
+        string s_headerFile;
+
+	directoryName = m_userOptions->s_saveToDirectory;
+	projectName = m_userOptions->s_projectName;
+	folderName = "/" + projectName;
+	directoryName.append(folderName);
+
+	m_userOptions->s_headerFileName.clear();
+
+	// output to files
+	m_engine->getFileManager()->writeDirectory(directoryName, m_output, projectName);
+
+	return true;
+}
+
